@@ -8,139 +8,139 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-# Replace with your actual Marzban panel URL
-MARZBAN_URL = 'https://www.panel.org:2096'
+# # Replace with your actual Marzban panel URL
+# MARZBAN_URL = 'https://www.panel.org:2096'
 
-# Replace with your actual Telegram bot token
-TELEGRAM_BOT_TOKEN = '6223909608:AAHCdLkw5Ooz1MZSpG90Klkla9iy9uR1vFI'
+# # Replace with your actual Telegram bot token
+# TELEGRAM_BOT_TOKEN = '6223909608:AAHCdLkw5Ooz1MZSpG90Klkla9iy9uR1vFI'
 
-async def get_access_token(username, password, url):
-    """Get an access token from the Marzban panel asynchronously."""
-    login_url = f'{url}/api/admin/token/'
-    data = {
-        'username': username,
-        'password': password
-    }
-    async with aiohttp.ClientSession() as session:
-        async with session.post(login_url, data=data) as response:
-            if response.status == 200:
-                result = await response.json()
-                return result['access_token']
-            else:
-                text = await response.text()
-                raise Exception(f'Could not obtain token: {text}')
+# async def get_access_token(username, password, url):
+#     """Get an access token from the Marzban panel asynchronously."""
+#     login_url = f'{url}/api/admin/token/'
+#     data = {
+#         'username': username,
+#         'password': password
+#     }
+#     async with aiohttp.ClientSession() as session:
+#         async with session.post(login_url, data=data) as response:
+#             if response.status == 200:
+#                 result = await response.json()
+#                 return result['access_token']
+#             else:
+#                 text = await response.text()
+#                 raise Exception(f'Could not obtain token: {text}')
 
-async def get_user_info(token, url, username):
-    """Get user info from the Marzban panel using username asynchronously."""
-    headers = {
-        'Authorization': f'Bearer {token}'
-    }
-    user_info_url = f'{url}/api/user/{username}'
-    async with aiohttp.ClientSession() as session:
-        async with session.get(user_info_url, headers=headers) as response:
-            if response.status == 200:
-                user_info = await response.json()
-                return user_info
-            else:
-                text = await response.text()
-                raise Exception(f'Could not obtain user info for {username}: {text}')
+# async def get_user_info(token, url, username):
+#     """Get user info from the Marzban panel using username asynchronously."""
+#     headers = {
+#         'Authorization': f'Bearer {token}'
+#     }
+#     user_info_url = f'{url}/api/user/{username}'
+#     async with aiohttp.ClientSession() as session:
+#         async with session.get(user_info_url, headers=headers) as response:
+#             if response.status == 200:
+#                 user_info = await response.json()
+#                 return user_info
+#             else:
+#                 text = await response.text()
+#                 raise Exception(f'Could not obtain user info for {username}: {text}')
 
-async def reset_usage(token, url, username):
-    headers = {
-        'Authorization': f'Bearer {token}'
-    }
-    reset_url = f'{url}/api/user/{username}/reset'
-    async with aiohttp.ClientSession() as session:
-        async with session.post(reset_url, headers=headers) as response:
-            if response.status == 200:
-                return True
-            else:
-                text = await response.text()
-                raise Exception(f'Could not reset usage for {username}: {text}')
+# async def reset_usage(token, url, username):
+#     headers = {
+#         'Authorization': f'Bearer {token}'
+#     }
+#     reset_url = f'{url}/api/user/{username}/reset'
+#     async with aiohttp.ClientSession() as session:
+#         async with session.post(reset_url, headers=headers) as response:
+#             if response.status == 200:
+#                 return True
+#             else:
+#                 text = await response.text()
+#                 raise Exception(f'Could not reset usage for {username}: {text}')
 
-async def revoke_subscription(token, url, username):
-    headers = {
-        'Authorization': f'Bearer {token}',
-        'Content-Type': 'application/json'
-    }
-    revoke_url = f'{url}/api/user/{username}/revoke_sub'
-    data = {}  # Include any required data here
-    async with aiohttp.ClientSession() as session:
-        async with session.post(revoke_url, headers=headers, json=data) as response:
-            if response.status == 200:
-                return True
-            else:
-                text = await response.text()
-                raise Exception(f'Could not revoke subscription for {username}: {text}')
+# async def revoke_subscription(token, url, username):
+#     headers = {
+#         'Authorization': f'Bearer {token}',
+#         'Content-Type': 'application/json'
+#     }
+#     revoke_url = f'{url}/api/user/{username}/revoke_sub'
+#     data = {}  # Include any required data here
+#     async with aiohttp.ClientSession() as session:
+#         async with session.post(revoke_url, headers=headers, json=data) as response:
+#             if response.status == 200:
+#                 return True
+#             else:
+#                 text = await response.text()
+#                 raise Exception(f'Could not revoke subscription for {username}: {text}')
 
-async def get_users(token, url, offset=0, limit=10):
-    headers = {'Authorization': f'Bearer {token}'}
-    users_url = f'{url}/api/users'
-    params = {'offset': offset, 'limit': limit}
+# async def get_users(token, url, offset=0, limit=10):
+#     headers = {'Authorization': f'Bearer {token}'}
+#     users_url = f'{url}/api/users'
+#     params = {'offset': offset, 'limit': limit}
     
-    async with aiohttp.ClientSession() as session:
-        async with session.get(users_url, headers=headers, params=params) as response:
-            if response.status == 200:
-                result = await response.json(content_type=None)
-                # Ensure that result is a dictionary
-                if isinstance(result, dict):
-                    # Check if 'users' and 'total' keys are in the result
-                    if 'users' in result and 'total' in result:
-                        return result
-                    else:
-                        # If result is not as expected, handle accordingly
-                        raise Exception(f'Unexpected response format: {result}')
-                else:
-                    raise Exception(f'Expected a dictionary but got {type(result)}')
-            else:
-                text = await response.text()
-                raise Exception(f'Could not obtain users: {text}')
+#     async with aiohttp.ClientSession() as session:
+#         async with session.get(users_url, headers=headers, params=params) as response:
+#             if response.status == 200:
+#                 result = await response.json(content_type=None)
+#                 # Ensure that result is a dictionary
+#                 if isinstance(result, dict):
+#                     # Check if 'users' and 'total' keys are in the result
+#                     if 'users' in result and 'total' in result:
+#                         return result
+#                     else:
+#                         # If result is not as expected, handle accordingly
+#                         raise Exception(f'Unexpected response format: {result}')
+#                 else:
+#                     raise Exception(f'Expected a dictionary but got {type(result)}')
+#             else:
+#                 text = await response.text()
+#                 raise Exception(f'Could not obtain users: {text}')
 
-def time_since_last_active(online_at):
-    if not online_at:
-        return "N/A"
+# def time_since_last_active(online_at):
+#     if not online_at:
+#         return "N/A"
 
-    # Parse the online_at timestamp into a datetime object
-    last_active_time = datetime.strptime(online_at, '%Y-%m-%dT%H:%M:%S')
+#     # Parse the online_at timestamp into a datetime object
+#     last_active_time = datetime.strptime(online_at, '%Y-%m-%dT%H:%M:%S')
 
-    # Calculate the time difference from now
-    now = datetime.now()
-    time_diff = now - last_active_time
+#     # Calculate the time difference from now
+#     now = datetime.now()
+#     time_diff = now - last_active_time
 
-    # Convert time difference to a human-readable format
-    if time_diff < timedelta(minutes=1):
-        return "Online"
-    elif time_diff < timedelta(hours=1):
-        minutes = int(time_diff.total_seconds() // 60)
-        return f"{minutes} minute(s) ago"
-    elif time_diff < timedelta(days=1):
-        hours = int(time_diff.total_seconds() // 3600)
-        return f"{hours} hour(s) ago"
-    else:
-        days = time_diff.days
-        return f"{days} day(s) ago"
+#     # Convert time difference to a human-readable format
+#     if time_diff < timedelta(minutes=1):
+#         return "Online"
+#     elif time_diff < timedelta(hours=1):
+#         minutes = int(time_diff.total_seconds() // 60)
+#         return f"{minutes} minute(s) ago"
+#     elif time_diff < timedelta(days=1):
+#         hours = int(time_diff.total_seconds() // 3600)
+#         return f"{hours} hour(s) ago"
+#     else:
+#         days = time_diff.days
+#         return f"{days} day(s) ago"
 
-def convert_bytes_to_gb(bytes_value):
-    return round(bytes_value / (1024 ** 3), 2)
+# def convert_bytes_to_gb(bytes_value):
+#     return round(bytes_value / (1024 ** 3), 2)
 
-def convert_bytes_to_mb(bytes_value):
-    return round(bytes_value / (1024 ** 2), 2)
+# def convert_bytes_to_mb(bytes_value):
+#     return round(bytes_value / (1024 ** 2), 2)
 
-def get_days_until_expiration(expire_timestamp):
-    if not expire_timestamp or expire_timestamp == 0:
-        return "No expiration"
+# def get_days_until_expiration(expire_timestamp):
+#     if not expire_timestamp or expire_timestamp == 0:
+#         return "No expiration"
 
-    try:
-        expire_date = datetime.utcfromtimestamp(expire_timestamp)
-    except (OSError, ValueError):
-        return "Invalid date"
+#     try:
+#         expire_date = datetime.utcfromtimestamp(expire_timestamp)
+#     except (OSError, ValueError):
+#         return "Invalid date"
 
-    now = datetime.utcnow()
-    delta = expire_date - now
-    if delta.days < 0:
-        return "Expired"
-    else:
-        return f"{delta.days} day(s)"
+#     now = datetime.utcnow()
+#     delta = expire_date - now
+#     if delta.days < 0:
+#         return "Expired"
+#     else:
+#         return f"{delta.days} day(s)"
 
 # Initialize bot and dispatcher
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
@@ -154,11 +154,11 @@ class Form(StatesGroup):
     menu = State()
     get_user_info_username = State()
 
-# Start command handler
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message, state: FSMContext):
-    await message.answer("Please enter your username:")
-    await state.set_state(Form.username)
+# # Start command handler
+# @dp.message(Command("start"))
+# async def cmd_start(message: types.Message, state: FSMContext):
+#     await message.answer("Please enter your username:")
+#     await state.set_state(Form.username)
 
 # Username handler
 @dp.message(Form.username)
@@ -259,55 +259,55 @@ async def process_get_user_info_username(message: types.Message, state: FSMConte
         await message.answer("Session expired. Please log in again.")
         await state.clear()
 
-def format_user_status(user_status):
-    # Access data directly from user_status based on actual keys
-    username = user_status.get('username', 'N/A')
-    status = user_status.get('status', 'N/A')
-    used_traffic_bytes = user_status.get('used_traffic', 0)
-    data_limit_bytes = user_status.get('data_limit', None)
-    expire_timestamp = user_status.get('expire', None)
-    online_at = user_status.get('online_at', None)
-    last_user_agent = user_status.get('sub_last_user_agent', 'N/A')
+# def format_user_status(user_status):
+#     # Access data directly from user_status based on actual keys
+#     username = user_status.get('username', 'N/A')
+#     status = user_status.get('status', 'N/A')
+#     used_traffic_bytes = user_status.get('used_traffic', 0)
+#     data_limit_bytes = user_status.get('data_limit', None)
+#     expire_timestamp = user_status.get('expire', None)
+#     online_at = user_status.get('online_at', None)
+#     last_user_agent = user_status.get('sub_last_user_agent', 'N/A')
 
-    # Convert used traffic and data limit from bytes to GB
-    used_traffic_gb = convert_bytes_to_gb(used_traffic_bytes)
+#     # Convert used traffic and data limit from bytes to GB
+#     used_traffic_gb = convert_bytes_to_gb(used_traffic_bytes)
 
-    # Safely handle the case where data_limit might be None or zero
-    if data_limit_bytes is None or data_limit_bytes == 0:
-        data_limit_gb = None
-    else:
-        data_limit_gb = convert_bytes_to_gb(data_limit_bytes)
+#     # Safely handle the case where data_limit might be None or zero
+#     if data_limit_bytes is None or data_limit_bytes == 0:
+#         data_limit_gb = None
+#     else:
+#         data_limit_gb = convert_bytes_to_gb(data_limit_bytes)
 
-    # Handle used traffic display (in MB if less than 1 GB)
-    if used_traffic_gb < 1:
-        used_traffic_mb = convert_bytes_to_mb(used_traffic_bytes)
-        used_traffic_display = f"{used_traffic_mb} MB"
-    else:
-        used_traffic_display = f"{used_traffic_gb} GB"
+#     # Handle used traffic display (in MB if less than 1 GB)
+#     if used_traffic_gb < 1:
+#         used_traffic_mb = convert_bytes_to_mb(used_traffic_bytes)
+#         used_traffic_display = f"{used_traffic_mb} MB"
+#     else:
+#         used_traffic_display = f"{used_traffic_gb} GB"
 
-    # Handle data limit display ("Unlimited" if None)
-    if data_limit_gb is None:
-        data_limit_display = "Unlimited"
-    else:
-        data_limit_display = f"{data_limit_gb} GB"
+#     # Handle data limit display ("Unlimited" if None)
+#     if data_limit_gb is None:
+#         data_limit_display = "Unlimited"
+#     else:
+#         data_limit_display = f"{data_limit_gb} GB"
 
-    # Calculate days until expiration
-    days_until_expire = get_days_until_expiration(expire_timestamp)
+#     # Calculate days until expiration
+#     days_until_expire = get_days_until_expiration(expire_timestamp)
 
-    # Get the last active time and format it
-    last_active_display = time_since_last_active(online_at)
+#     # Get the last active time and format it
+#     last_active_display = time_since_last_active(online_at)
 
-    # Format and display the user's status
-    status_message = (
-        f"Username: {username}\n"
-        f"Status: {status}\n"
-        f"Expiration in: {days_until_expire}\n"
-        f"Data Limit: {data_limit_display}\n"
-        f"Used Traffic: {used_traffic_display}\n"
-        f"Last Active: {last_active_display}\n"
-        f"Last User Agent: {last_user_agent}\n"
-    )
-    return status_message
+#     # Format and display the user's status
+#     status_message = (
+#         f"Username: {username}\n"
+#         f"Status: {status}\n"
+#         f"Expiration in: {days_until_expire}\n"
+#         f"Data Limit: {data_limit_display}\n"
+#         f"Used Traffic: {used_traffic_display}\n"
+#         f"Last Active: {last_active_display}\n"
+#         f"Last User Agent: {last_user_agent}\n"
+#     )
+#     return status_message
 
 @dp.callback_query(lambda c: c.data and c.data.startswith('reset_usage:'))
 async def process_reset_usage(callback_query: types.CallbackQuery, state: FSMContext):
@@ -457,8 +457,8 @@ async def process_user_detail(callback_query: types.CallbackQuery, state: FSMCon
     else:
         await callback_query.answer("Session expired. Please log in again.", show_alert=False)
 
-async def main():
-    await dp.start_polling(bot)
+# async def main():
+#     await dp.start_polling(bot)
 
-if __name__ == '__main__':
-    asyncio.run(main())
+# if __name__ == '__main__':
+#     asyncio.run(main())
